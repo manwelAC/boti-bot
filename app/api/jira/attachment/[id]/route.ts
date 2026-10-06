@@ -6,13 +6,15 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   try {
     const { response, sessionCookie } = await jiraFetch(request, `/rest/api/3/attachment/content/${id}?redirect=false`);
     if (!response.ok) return new Response("Attachment unavailable", { status: response.status === 404 ? 404 : 502 });
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
     const result = new Response(response.body, {
       status: 200,
       headers: {
-        "Content-Type": response.headers.get("content-type") || "application/octet-stream",
-        "Content-Disposition": "inline",
+        "Content-Type": contentType,
+        "Content-Disposition": contentType.toLowerCase().startsWith("application/pdf") ? "inline" : "attachment",
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "sandbox",
       },
     });
     if (sessionCookie) result.headers.append("Set-Cookie", sessionCookie);

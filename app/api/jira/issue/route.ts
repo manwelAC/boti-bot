@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const key = new URL(request.url).searchParams.get("key")?.trim().toUpperCase() || "";
   if (!keyPattern.test(key)) return Response.json({ error: "Enter a Jira task key such as SM360-1551" }, { status: 400 });
   try {
-    const { response, sessionCookie, siteUrl } = await jiraFetch(
+    const { response, sessionCookies, siteUrl } = await jiraFetch(
       request,
       `/rest/api/3/issue/${encodeURIComponent(key)}?fields=summary,description,attachment,status,issuetype`,
     );
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       attachments: (issue.fields.attachment || []).map(({ id, filename, mimeType, size, created }) => ({ id, filename, mimeType, size, created })),
       jiraUrl: `${siteUrl}/browse/${encodeURIComponent(issue.key)}`,
     });
-    if (sessionCookie) result.headers.append("Set-Cookie", sessionCookie);
+    for (const cookie of sessionCookies || []) result.headers.append("Set-Cookie", cookie);
     return result;
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not load task" }, { status: 401 });

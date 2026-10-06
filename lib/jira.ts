@@ -32,7 +32,7 @@ export function jiraConfig() {
 }
 
 export function getCookie(request: Request, name: string) {
-  const item = request.headers.get("cookie")?.split("; ").find((part) => part.startsWith(`${name}=`));
+  const item = request.headers.get("cookie")?.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${name}=`));
   return item ? item.slice(name.length + 1) : null;
 }
 
@@ -76,11 +76,16 @@ export async function unseal(value: string | null): Promise<JiraSession | null> 
 }
 
 export function cookieHeader(name: string, value: string, maxAge: number) {
-  return `${name}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
+  const secure = new URL(config().appUrl).protocol === "https:" ? "; Secure" : "";
+  return `${name}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly${secure}; SameSite=Lax`;
 }
 
-export function sessionHeader(value: string) {
-  return cookieHeader(sessionCookie, value, 60 * 60 * 24 * 30);
+export function sessionHeaders(value: string) {
+  const parts = value.match(/.{1,3000}/g) || [];
+  return [
+    cookieHeader(`${sessionCookie}_parts`, String(parts.length), 60 * 60 * 24 * 30),
+    ...parts.map((part, index) => cookieHeader(`${sessionCookie}_${index}`, part, 60 * 60 * 24 * 30)),
+  ];
 }
 
 export function stateHeader(value: string) {
@@ -92,6 +97,11 @@ export function clearStateHeader() {
 }
 
 export function readSession(request: Request) {
+  const count = Number(getCookie(request, `${sessionCookie}_parts`));
+  if (Number.isInteger(count) && count > 0 && count <= 8) {
+    const parts = Array.from({ length: count }, (_, index) => getCookie(request, `${sessionCookie}_${index}`));
+    return unseal(parts.every(Boolean) ? parts.join("") : null);
+  }
   return unseal(getCookie(request, sessionCookie));
 }
 
@@ -116,17 +126,17 @@ export async function exchangeCode(code: string): Promise<JiraSession> {
       redirect_uri: `${c.appUrl}/api/jira/callback`,
     }),
   });
-  if (!response.ok) throw new Error(`Jira authorization failed (${response.status})`);
+  if (!response.ok) throw new Error(`token_${response.status}`);
   const token = await response.json() as { access_token: string; refresh_token?: string; expires_in: number };
   const resourcesResponse = await fetch("https://api.atlassian.com/oauth/token/accessible-resources", {
     headers: { Authorization: `Bearer ${token.access_token}`, Accept: "application/json" },
   });
-  if (!resourcesResponse.ok) throw new Error("Could not read Jira site access");
+  if (!resourcesResponse.ok) throw new Error(`resources_${resourcesResponse.status}`);
   const resources = await resourcesResponse.json() as { id: string; url: string; name: string }[];
   const selected = c.siteUrl
     ? resources.find((resource) => resource.url.replace(/\/$/, "") === c.siteUrl.replace(/\/$/, ""))
     : resources[0];
-  if (!selected) throw new Error("The selected Jira site was not granted access");
+  if (!selected) throw new Error("site_not_granted");
   return {
     accessToken: token.access_token,
     refreshToken: token.refresh_token,
@@ -159,7 +169,7 @@ async function refresh(session: JiraSession): Promise<JiraSession> {
   };
 }
 
-export async function jiraFetch(request: Request, path: string) {
+export async function jiraFetch(request: Request, path: string, init?: RequestInit) {
   let session = await readSession(request);
   if (!session) throw new Error("Connect Jira first");
   let updated = false;
@@ -168,8 +178,9 @@ export async function jiraFetch(request: Request, path: string) {
     updated = true;
   }
   const response = await fetch(`https://api.atlassian.com/ex/jira/${encodeURIComponent(session.cloudId)}${path}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/json" },
+    ...init,
+    headers: { ...(init?.headers || {}), Authorization: `Bearer ${session.accessToken}`, Accept: "application/json" },
     redirect: "follow",
   });
-  return { response, sessionCookie: updated ? sessionHeader(await seal(session)) : null, siteUrl: session.siteUrl };
+  return { response, sessionCookies: updated ? sessionHeaders(await seal(session)) : null, siteUrl: session.siteUrl };
 }

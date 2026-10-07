@@ -1,126 +1,232 @@
-# vinext-starter
+<div align="center">
 
-A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
+# Boti-bot
 
-## Prerequisites
+**Bring Jira task documents into focus and verify branch implementations with autonomous QA.**
 
-- Node.js `>=22.13.0`
-- Portable: Windows, macOS, or Linux; no Bash required
-- Managed Linux: managed Linux runtime with Bash, `flock`, `curl`, `sha256sum`, and GNU `timeout`
-- Git is required only for publishing
+A focused, document-first workspace, automated Antigravity QA verification engine, and MCP context bridge crafted with Next.js 16, Cloudflare Workers, Tailwind CSS, and Drizzle.
 
-## Sites Lifecycle
+<br />
 
-The Sites initializer copies the shared starter and selects managed-linux only when `SITES_MANAGED_LINUX_CONTAINER=1`; otherwise it selects portable. It saves the selection only in ignored `.sites-runtime/execution-profile.json`. Both profiles copy/configure first, then use the plugin's separate `install-dependencies.mjs` step to measure installation independently. Edit source under `app/` and follow the Sites skill for installation, preview, builds, and publishing.
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Next.js%2016-0070F3?style=flat&logo=nextdotjs&logoColor=white" alt="Platform Next.js 16" />
+  <img src="https://img.shields.io/badge/Runtime-Node.js%20%5E22.13-339933?style=flat&logo=nodedotjs&logoColor=white" alt="Runtime Node 22.13+" />
+  <img src="https://img.shields.io/badge/Language-TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" alt="Language TypeScript" />
+  <img src="https://img.shields.io/badge/Integration-Jira%20OAuth%202.0-0052CC?style=flat&logo=jira&logoColor=white" alt="Integration Jira OAuth 2.0" />
+  <img src="https://img.shields.io/badge/Cloud-Cloudflare%20Workers-F38020?style=flat&logo=cloudflare&logoColor=white" alt="Cloud Cloudflare Workers" />
+</p>
 
-Run `node <plugin-root>/scripts/configure-execution-profile.mjs` only when the profile is unknown for the current checkout and environment. Profile changes do not alter tracked source or require reinstalling otherwise-valid dependencies; restart an existing preview to use the new selection. Do not commit or upload `.sites-runtime/`.
+<p align="center">
+  <img src="https://img.shields.io/badge/QA%20Engine-Antigravity%20%2B%20Playwright-7C3AED?style=flat&logo=playwright&logoColor=white" alt="QA Engine Antigravity" />
+  <img src="https://img.shields.io/badge/Sandbox-Docker%20Isolated-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker Sandbox" />
+  <img src="https://img.shields.io/badge/Protocol-MCP%202025--06-8A2BE2?style=flat&logo=json&logoColor=white" alt="Protocol MCP" />
+  <img src="https://img.shields.io/badge/Database-D1%20%2B%20Drizzle-4ADE80?style=flat&logo=drizzle&logoColor=black" alt="Database D1 Drizzle" />
+  <img src="https://img.shields.io/badge/Styling-Tailwind%20v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white" alt="Styling Tailwind v4" />
+  <img src="https://img.shields.io/badge/Tests-Passing-22C55E?style=flat&logo=checkmarx&logoColor=white" alt="Tests Passing" />
+</p>
 
-This starter does not use `wrangler.jsonc`.
+</div>
 
-`install:ci` runs `npm ci` once against the shared lockfile, disables parent-workspace discovery, and includes required dev/optional dependencies despite production/omit settings. Sharp defaults to prebuilt binaries unless explicitly configured otherwise. Do not overlap installers.
+---
 
-- **Portable:** Preserve host HOME, npm cache, registry, proxy, temporary paths, retry/concurrency settings, and lifecycle-script policy. Use `--prefer-offline --no-audit --no-fund`.
-- **Managed Linux:** Use the existing project-local HOME/cache/tmp setup and Linux install lock, tarball preflight, and timeout. Restore the image-seeded npm cache only when its lockfile hash matches; retain network fallback. Builds keep their existing timeout. These helpers are not invoked by the portable profile.
+## Overview
 
-`scripts/sites-env.mjs` preserves the caller's HOME, npm cache, proxy, XDG, and temporary-directory configuration while defaulting Wrangler and Miniflare state to the checkout. If npm reports an unwritable cache, select a writable path with `npm_config_cache` for that install. The `dev` and `start` scripts also keep Wrangler logs inside the checkout. Generated `.sites-runtime/` and `.wrangler/` directories are disposable and ignored by Git.
+**Boti-bot** is an intentional, focused Jira task document workspace and autonomous QA verification bridge designed to eliminate requirement drift without the clutter, friction, or context-switching of traditional project tracking tools.
 
-On portable, `npm run dev` uses `vinext dev` with HMR, starting at port 5173. Vinext records the running server in ignored `.vinext/` state, rejects an ordinary duplicate launch, and recovers stale state after a stopped process; exactly simultaneous starts can race. Pass `--port <port>` or `--hostname <host>` after `npm run dev --` when needed; keep portable previews on loopback.
+Unlike general ticketing portals that force you to hunt through attachments and guess acceptance criteria, **Boti-bot is document-first and verification-driven**. Your assigned Jira issues, technical specification attachments, and a dedicated **Antigravity QA phase** live in one unified workspace—providing clear ground truth before tracing code, and automated end-to-end branch verification before merging.
 
-For browser QA on managed Linux, use `sites-preview start`. The project's dev script runs Vite and accepts the supervisor's `--host 0.0.0.0 --port 4173 --strictPort` arguments. The internal browser uses `http://terminal.local:4173/`; it is not a user-facing URL. The supervisor owns the preview lifecycle. The ignored local profile survives the supervisor's cleared process environment.
+---
 
-The portable profile simulates ChatGPT sign-in only for loopback development requests. Visit `/signin-with-chatgpt?return_to=/` to sign in as `local_seedy` (`seedy@sites.test`, display name `Seedy`) and `/signout-with-chatgpt?return_to=/` to sign out. The development cookie preserves that identity across server restarts. Mock auth is disabled in the managed-linux profile and is not included in production builds; hosted authentication remains dispatch-owned.
+## 🧪 The QA Phase (Antigravity QA Engine)
 
-The Worker uses `vinext/server/fetch-handler`, including Vinext's config-aware image handling. After building, `npm start` runs that Worker locally through Wrangler on `127.0.0.1`, sharing `.wrangler/state` with dev preview and local D1 migrations; it does not deploy the site or simulate sign-in. Use the URL printed by the server. Pass `npm start -- --port <port>` to select a different built-preview port.
+Boti-bot features a dedicated, automated **QA Phase** powered by the Antigravity CLI, Playwright, Chromium, and isolated Docker execution. It bridges the gap between written ticket specifications and actual codebase implementations by checking out target branches and running live end-to-end verification.
 
-Local previews use Miniflare's placeholder `Request.cf` metadata without a network lookup. Set `CLOUDFLARE_CF_FETCH_ENABLED=true` to opt into fetching preview metadata; this setting does not change hosted request metadata.
+```
+┌─────────────────────────┐       ┌───────────────────────────────┐       ┌─────────────────────────┐
+│   Jira Task & Specs     │  ───► │  Stage 1: Document Review     │  ───► │ Stage 2: App Testing    │
+│  • Issue description    │       │  • OCR & text extraction      │       │ • Disposable git trees  │
+│  • PDF / DOCX / Images  │       │  • Acceptance criteria map    │       │ • Playwright journeys   │
+└─────────────────────────┘       │  • Full document coverage     │       │ • Role provisioning    │
+                                  └───────────────────────────────┘       └────────────┬────────────┘
+                                                                                       │
+                                                                                       ▼
+                                                                          ┌─────────────────────────┐
+                                                                          │  Structured Audit Log   │
+                                                                          │  • Verdict & findings   │
+                                                                          │  • Step-by-step proof   │
+                                                                          │  • report.json saved    │
+                                                                          └─────────────────────────┘
+```
 
-Local tool usage metrics are disabled by default. Set `WRANGLER_SEND_METRICS=true` to opt in.
+### Two-Stage Autonomous Verification
 
-## Included Shape
+1. **Stage 1: Document Review & Coverage Extraction** *(up to 6 minutes)*
+   - Downloads all Jira attachments associated with the task (PDF, DOCX, ODT, images, text) up to 25 MB total.
+   - Extracts page-by-page text using native extraction and OCR engines.
+   - Synthesizes explicit acceptance criteria and verifies full document review coverage (`document-review.json`). Uncovered or unreadable pages are flagged as limitations.
 
-- edit site code under `app/`
-- `app/chatgpt-auth.ts` provides optional dispatch-owned ChatGPT sign-in helpers
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/index.ts` reads the D1 binding from the Cloudflare Worker environment
-- `db/schema.ts` starts intentionally empty
-- `@cloudflare/workers-types` provides Worker types; `cloudflare-env.d.ts` declares optional `DB`/`BUCKET` bindings—update these declarations if binding names change
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+2. **Stage 2: Live App Verification & Journey Testing** *(up to 10 minutes)*
+   - Creates disposable Git worktrees for target commits (`app-ui` and `app-api`) against specified base branches (e.g. `origin/develop`).
+   - Discovers local Compose projects, evaluates container health, and inspects pinned Dockerfiles.
+   - **Safe Role Provisioning**: Derives required user roles from the task and safely creates temporary test accounts on local/testing databases, cleaning them up after execution.
+   - Drives headless Chromium/Playwright browsers inside a read-only Docker container (`botibot-qa:local`) to validate real user journeys against live endpoints (`http://localhost:4200`, `http://127.0.0.1:8000`).
 
-## Workspace Auth Headers
+3. **Verdicts & Actionable Reports**
+   - Saves complete audit runs under `qa-runs/<run-id>/report.json` with an explicit verdict: **Passed**, **Failed**, or **Inconclusive**.
+   - Includes specific cited criteria, step-by-step evidence, reproduction steps, finding severities, and limitations.
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+---
 
-The user ID is stable for the same user on the same Site and different across Sites. Use it as the durable user key; use email and name for display or contact purposes.
+## Key Capabilities
 
-SIWC-authenticated workspace sites may also receive `oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty `name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by `oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+- **🎯 Task-First Workspace**: Query and inspect Jira issues by key (`e.g. SM360-1551`), view status columns, and render ADF (Atlassian Document Format) descriptions.
+- **📎 Attachment & Document Reader**: Direct access to requirement documents, mockups, and uploaded assets before opening any editor.
+- **🧪 Antigravity QA Panel**: In-app interface to select UI/API branches, compare against base refs, launch automated QA runs, and stream live verdicts.
+- **🤖 Model Context Protocol (MCP)**: Native `/app/mcp` JSON-RPC endpoint serving tools like `get_task_context` and `get_attachment_text` directly to AI coding agents.
+- **⚡ Edge & Full-Stack Ready**: Next.js 16 compiled via Vinext / Vite to Cloudflare Workers with optional Cloudflare D1 and Drizzle ORM persistence.
+- **🩺 Preflight Health Runner**: Instant environment diagnostics (`npm run qa:check`) checking Docker, Compose, and microservices.
 
-Treat the full name as optional and fall back to email when it is absent:
+---
 
-```tsx
-import { headers } from "next/headers";
+## Architecture & Technology Stack
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+| Capsule | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | Next.js `16.3` / React `19` | Modern full-stack React framework with App Router and Server Components |
+| **QA Engine** | Antigravity CLI + Playwright | Autonomous agentic QA verification, Chromium journeys, and test generation |
+| **QA Sandbox** | Docker (`botibot-qa:local`) | Read-only container with Playwright, Git, OCR, and isolated auth volume |
+| **Edge Server** | Cloudflare Workers + Vinext | High-performance edge deployment powered by Vite and Cloudflare Workers |
+| **Authentication** | Atlassian OAuth 2.0 (3LO) | Secure OAuth token exchange (`read:jira-work`, `offline_access`) with cookie sessions |
+| **AI Protocol** | Model Context Protocol (MCP) | JSON-RPC 2.0 tool provider enabling agentic pairing with IDEs and AI models |
+| **Database** | Cloudflare D1 + Drizzle ORM | Serverless SQLite at the edge with lightweight migrations via Drizzle Kit |
+| **Design System** | Tailwind CSS v4 + Radix UI | Modern responsive interface, Lucide icons, and spatial task board styling |
 
-  const displayName = fullName ?? email;
-  // ...
+---
+
+## Quick Start
+
+### 1. Prerequisites
+
+- **Node.js**: `>=22.13.0`
+- **Docker & Docker Compose**: For running the sandboxed QA container and local stacks
+- **Antigravity CLI (`agy`)**: Installed at `~/.local/bin/agy` (or configured via `BOTIBOT_AGY_BINARY`)
+- **Atlassian Developer App**: Configured for Jira OAuth 2.0 (3LO)
+
+### 2. Environment Configuration
+
+Create or update `.env.local` in `boti-bot/`:
+
+```bash
+# Atlassian OAuth 2.0 Credentials
+JIRA_CLIENT_ID="your-jira-client-id"
+JIRA_CLIENT_SECRET="your-jira-client-secret"
+JIRA_SITE_URL="https://your-workspace.atlassian.net"
+
+# Application URL & Session Secret
+BOTI_APP_URL="http://localhost:5173"
+BOTI_SESSION_KEY="your-random-32-byte-base64-secret"
+```
+
+### 3. Setup QA Image & Sign-in (One-Time)
+
+From the `boti-bot/` directory:
+
+```bash
+# 1. Build the sandboxed QA runner image
+docker build -t botibot-qa:local -f qa-runner/Dockerfile qa-runner
+
+# 2. Complete the container's Antigravity CLI sign-in
+node qa-runner/login.mjs
+```
+
+### 4. Start Development & QA Services
+
+Run in separate terminals:
+
+```bash
+# Terminal 1: Start the local QA daemon (port 8788)
+node qa-runner/server.mjs
+
+# Terminal 2: Start the Boti-bot web application (port 5173)
+npm run dev
+```
+
+Visit [http://localhost:5173](http://localhost:5173) to access the workspace.
+
+---
+
+## Running QA Checks
+
+### From the Web UI
+
+1. Open Boti-bot at `http://localhost:5173` and connect your Jira account.
+2. Search and open any Jira task (e.g. `SM360-1551`).
+3. Scroll down to the **Antigravity QA** panel.
+4. Select your target **UI ref/branch** and **API ref/branch**, pick base branches (e.g., `origin/develop`), verify the test URLs (`http://localhost:4200` and `http://127.0.0.1:8000`), and click **Run QA**.
+5. Watch real-time execution progress and review the resulting verdicts, findings, and criteria coverage.
+
+### Preflight Diagnostics (CLI)
+
+Verify that your local machine, repositories, and Docker stacks are ready:
+
+```bash
+npm run qa:check
+```
+
+*Optional probe flags:*
+```bash
+npm run qa:check -- --ui-url http://127.0.0.1:4200 --api-url http://127.0.0.1:8000
+```
+
+### Dry Run (CLI)
+
+Inspect resolved commits and generated prompts without invoking Antigravity:
+
+```bash
+node qa-runner/run.mjs --input qa-request.json --dry-run
+```
+
+---
+
+## Model Context Protocol (MCP)
+
+Boti-bot exposes a Model Context Protocol endpoint at `/app/mcp` (or `/api/mcp`) supporting JSON-RPC 2.0:
+
+### Available MCP Tools
+
+- **`get_task_context`**: Returns the active Jira task context, summary, and status before reading source code.
+- **`get_attachment_text`**: Extracts document text and specs from Jira attachments by `attachment_id`.
+
+### Example MCP Configuration
+
+Add Boti-bot to your AI assistant configuration (`mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "boti-bot": {
+      "url": "http://localhost:5173/app/mcp",
+      "transport": "http"
+    }
+  }
 }
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+---
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs optional or required ChatGPT sign-in:
+## Available Scripts
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use the returned `userId` as the stable user key for user-owned records; do not use email as a durable identifier.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send anonymous visitors through Sign in with ChatGPT.
-- In a Server Component, start sign-in with `<a href={chatGPTSignInPath(returnTo)} target="_top">`. The auth helper module is server-only; do not import it into a Client Component.
-- Do not use `fetch`, XHR, a client-side router, or a framework link that can prefetch the sign-in route. SIWC must start as a top-level navigation.
-- Never request the AuthAPI authorization endpoint directly. The dispatch-owned `/signin-with-chatgpt` route must start the SIWC flow.
-- Use `chatGPTSignOutPath(returnTo)` for browser sign-out links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because they depend on per-request identity headers.
+| Command | Action |
+| :--- | :--- |
+| `npm run dev` | Launch the Vite / Vinext development server with HMR on port 5173 |
+| `npm run qa:check` | Run environment, dependency, and microservice preflight checks |
+| `npm run build` | Build the deployable Cloudflare Workers production bundle |
+| `npm run start` | Run the built Worker locally via Wrangler with local D1 emulation |
+| `npm run db:generate` | Generate Drizzle migrations after schema changes |
+| `npm run lint` | Run ESLint across Next.js and TypeScript files |
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the OAuth cookies, and identity header injection. Do not implement app routes for those reserved paths. Routes that do not import and call the helper remain anonymous-compatible.
+---
 
-SIWC establishes identity only; it does not prove workspace membership. Use the Sites hosting platform's access policy controls for workspace-wide restrictions, or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Local D1 migrations
-
-For a D1-backed local preview, generate SQL with `npm run db:generate`. Build once through the Sites skill's build entrypoint (or `npm run build` for standalone use) to generate `dist/server/wrangler.json`, rebuilding if bindings change. From the project root, apply each pending migration in order:
-
-```sh
-node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_example.sql
-```
-
-Replace the filename with the pending migration and `DB` with your D1 binding name if different. Use `.wrangler/state`, not `.wrangler/state/v3`; Wrangler adds the versioned directories. Do not replay migrations already applied locally. This updates only the preview database; publishing applies production migrations separately.
-
-## Diagnostic Commands
-
-- `npm run install:ci`: perform the one locked dependency install
-- `npm run dev`: start the Vite/Vinext development server
-- `npm run build`: build the deployable Sites artifact
-- `npm run start`: preview the built Worker locally with D1/R2 support
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-When using the Sites plugin, follow its skill instructions for installation, builds, and publishing. These npm commands remain available for standalone use.
-
-The portable build runs Vinext directly without a host `timeout` command. The managed-linux build uses `scripts/build-verified.sh` and its existing `SITES_BUILD_TIMEOUT` setting.
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+<div align="center">
+  <small>Boti-bot • Core Developer Productivity, Task Documents & Autonomous QA</small>
+</div>

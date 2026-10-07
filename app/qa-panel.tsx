@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Issue = { key: string; title: string; description: unknown; attachments: { id: string; filename: string; mimeType: string; size: number }[] };
 type Finding = { title: string; severity: string; steps: string[]; expected: string; actual: string; evidence: string };
-type Report = { verdict: string; summary: string; commits: { ui: { head: string }; api: { head: string } }; criteria: { criterion: string; status: string; evidence: string }[]; checks: { name: string; status: string; evidence: string }[]; findings: Finding[]; limitations: string[] };
+type Report = { verdict: string; summary: string; commits: { ui: { head: string }; api: { head: string } }; criteria: { criterion: string; status: string; evidence: string }[]; checks: { name: string; status: string; evidence: string }[]; findings: Finding[]; limitations: string[]; documentCoverage?: { filename: string; pagesReviewed: number[]; unreadablePages: number[]; notes: string }[] };
 type Run = { id: string; status: string; error?: string; report?: Report };
 type RepoInfo = { current: string; head: string; branches: string[]; dirty: boolean };
 const endpoint = "http://127.0.0.1:8788";
@@ -31,7 +31,7 @@ export default function QaPanel({ issue }: { issue: Issue }) {
   const [apiRef, setApiRef] = useState("HEAD");
   const [uiBase, setUiBase] = useState("origin/develop");
   const [apiBase, setApiBase] = useState("origin/develop");
-  const [uiUrl, setUiUrl] = useState("http://127.0.0.1:4200");
+  const [uiUrl, setUiUrl] = useState("http://localhost:4200");
   const [apiUrl, setApiUrl] = useState("http://127.0.0.1:8000");
   const [run, setRun] = useState<Run | null>(null);
   const [error, setError] = useState("");
@@ -103,6 +103,7 @@ export default function QaPanel({ issue }: { issue: Issue }) {
     {ready && setup && !setup.imageReady && <p className="qa-notice">Build the QA container first. See <code>qa-runner/README.md</code>, then refresh this page.</p>}
     {ready && setup?.imageReady && !setup.loginPresent && <p className="qa-notice">Sign in to Antigravity inside the QA container once. See <code>qa-runner/README.md</code>, then refresh this page.</p>}
     {repos && <p className="qa-notice">Local branches: UI <strong>{repos.ui.current}</strong> ({repos.ui.head.slice(0, 12)}), API <strong>{repos.api.current}</strong> ({repos.api.head.slice(0, 12)}).{repos.ui.dirty || repos.api.dirty ? " Uncommitted changes are present; this runner tests committed branch snapshots only." : ""}</p>}
+    <p className="qa-notice">Choose the task branch as head and the earlier target branch (often <code>origin/develop</code>) as base. Using <code>origin/your-task-branch</code> as base usually produces no change set.</p>
     <form onSubmit={start}>
       <div className="qa-grid">
         <BranchField label="UI branch or commit" value={uiRef} branches={repos?.ui.branches || []} onChange={setUiRef} />
@@ -119,6 +120,7 @@ export default function QaPanel({ issue }: { issue: Issue }) {
     {run?.report && <div className="qa-report">
       <div className="qa-verdict"><strong>{run.report.verdict.toUpperCase()}</strong><span>{run.report.summary}</span></div>
       <p className="qa-commits">UI {run.report.commits.ui.head.slice(0, 12)} · API {run.report.commits.api.head.slice(0, 12)}</p>
+      {run.report.documentCoverage && <><h4>Document coverage</h4>{run.report.documentCoverage.map((item, index) => <div className="qa-row" key={index}><strong>{item.pagesReviewed.length} pages</strong><span>{item.filename}<small>Reviewed: {item.pagesReviewed.join(", ") || "none"}{item.unreadablePages.length ? ` · Unreadable: ${item.unreadablePages.join(", ")}` : ""}{item.notes ? ` · ${item.notes}` : ""}</small></span></div>)}</>}
       <h4>Acceptance criteria</h4>
       {run.report.criteria.map((item, index) => <div className="qa-row" key={index}><strong>{item.status}</strong><span>{item.criterion}<small>{item.evidence}</small></span></div>)}
       <h4>Checks</h4>
